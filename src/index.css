@@ -1,0 +1,108 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Pathway+Extreme:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Share:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@100..800&family=Ysabeau:ital,wght@0,1..1000;1,1..1000&display=swap");
+
+@import "tailwindcss";
+
+body {
+    font-family: var(--font-family-manrope);
+}
+
+/* Custom theme configuration */
+@theme {
+    --font-family-sans: "Inter", system-ui, sans-serif;
+    --font-family-small: "Pathway Extreme", sans-serif;
+    --font-family-medium: "Share", sans-serif;
+    --font-family-heading: "Libre Baskerville", serif;
+    --font-family-primary: "Cormorant", serif;
+    --font-family-manrope: "Manrope", sans-serif;
+    --font-family-bangla: "Anek Bangla", sans-serif;
+
+    /* Primary colors */
+    --color-primary-50: #eff6ff;
+    --color-primary-100: #dbeafe;
+    --color-primary-200: #bfdbfe;
+    --color-primary-300: #93c5fd;
+    --color-primary-400: #60a5fa;
+    --color-primary-500: #3b82f6;
+    --color-primary-600: #2563eb;
+    --color-primary-700: #1d4ed8;
+    --color-primary-800: #1e40af;
+    --color-primary-900: #1e3a8a;
+
+    /* Secondary colors */
+    --color-secondary-50: #f8fafc;
+    --color-secondary-100: #f1f5f9;
+    --color-secondary-200: #e2e8f0;
+    --color-secondary-300: #cbd5e1;
+    --color-secondary-400: #94a3b8;
+    --color-secondary-500: #64748b;
+    --color-secondary-600: #475569;
+    --color-secondary-700: #334155;
+    --color-secondary-800: #1e293b;
+    --color-secondary-900: #0f172a;
+}
+
+/* Custom components */
+@layer components {
+    .container {
+        @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    }
+
+    .btn-primary {
+        @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    }
+
+    .btn-secondary {
+        @apply bg-secondary-100 hover:bg-secondary-200 text-secondary-900 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    }
+
+    .section-padding {
+        @apply py-16 lg:py-24;
+    }
+}
+
+.service-detail-swiper .swiper-button-next,
+.service-detail-swiper .swiper-button-prev {
+    color: #059669;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    margin-top: -22px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.service-detail-swiper .swiper-button-next:hover,
+.service-detail-swiper .swiper-button-prev:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+}
+
+.service-detail-swiper .swiper-button-next:after,
+.service-detail-swiper .swiper-button-prev:after {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.service-detail-swiper .swiper-pagination-bullet {
+    background: rgba(255, 255, 255, 0.7);
+    opacity: 1;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.service-detail-swiper .swiper-pagination-bullet-active {
+    background: #059669;
+    border-color: white;
+    transform: scale(1.2);
+}
+
+.service-detail-swiper .swiper-pagination {
+    bottom: 20px;
+}

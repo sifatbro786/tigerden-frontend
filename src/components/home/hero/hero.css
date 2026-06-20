@@ -1,0 +1,32 @@
+#hero1 {
+    background-image: url("https://thumbs.dreamstime.com/b/black-white-cow-isolated-white-background-black-white-cow-isolated-white-162738918.jpg");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-right: 2px solid #0c0202;
+    clip-path: polygon(0 0, 100% 0%, 75% 100%, 0% 100%);
+}
+
+#hero2 {
+    background-image: url("/Hero/shop.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
+}
+
+#hero3 {
+    background-image: url("/Hero/hero4.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    clip-path: polygon(25% 0, 100% 0%, 100% 100%, 0% 100%);
+}
+
+@media screen and (max-width: 768px) {
+    #hero1,
+    #hero2,
+    #hero3 {
+        clip-path: none !important;
+    }
+}
