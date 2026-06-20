@@ -7,7 +7,6 @@ import {
     Users,
     Award,
     Clock,
-    ArrowRight,
     PhoneCall,
 } from "lucide-react";
 import AboutImage from "/about.jpg";
@@ -22,7 +21,7 @@ const AboutPage = () => {
                     <img
                         src={AboutImage}
                         alt="Travel Journey"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover object-bottom"
                     />
                     {/* Gradient: Black/60 to Transparent for left-side readability */}
                     <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>

@@ -6,7 +6,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import { useState } from "react";
-import Logo from "/logo2.png";
+import Logo from "/logo.png";
 import toast from "react-hot-toast";
 
 const schema = z.object({
