@@ -1,9 +1,9 @@
-import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./contexts/AuthContext";
 import AppRoutes from "./router/AppRoutes";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -21,6 +21,7 @@ function App() {
                 <Router>
                     <div className="App">
                         <AppRoutes />
+                        <ScrollToTop />
                         <Toaster
                             position="top-right"
                             toastOptions={{
