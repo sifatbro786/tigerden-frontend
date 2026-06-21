@@ -1,21 +1,20 @@
-import React, { useEffect } from "react";
+// src/pages/auth/RegistrationPage.jsx
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, UserPlus } from "lucide-react";
-import { useState } from "react";
-import Logo from "/logo.png";
-import toast from "react-hot-toast";
+import { Eye, EyeOff, UserPlus, Compass, Waves, Mountain } from "lucide-react";
 
 const schema = z.object({
     name: z.string().min(2, "Name is required"),
-    email: z.string().email("Invalid email"),
+    email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters"),
+    phone: z.string().optional(),
 });
 
-export default function RegisterPage() {
+export default function RegistrationPage() {
     const { register: signup, user } = useAuth();
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
@@ -29,156 +28,191 @@ export default function RegisterPage() {
     });
 
     useEffect(() => {
-        if (user && user.role === "admin") {
+        if (user && (user.role === "admin" || user.role === "super_admin")) {
             navigate("/dashboard");
         }
     }, [user, navigate]);
 
     const handleRegister = async (data) => {
-        const result = await signup(data.name, data.email, data.password);
-
+        const result = await signup(data.name, data.email, data.password, data.phone);
         if (result.success) {
-            toast.success("Registration successful!");
             navigate("/dashboard");
-        } else {
-            toast.error(result.message || "Registration failed. Please try again.");
         }
     };
 
     return (
-        <div className="p-20">
-            <div className="flex flex-col md:flex-row bg-[#F3FAEF]">
-                <div className="w-full md:w-1/2 flex items-center justify-center px-6 py-10">
-                    <div className="w-full max-w-md space-y-6">
-                        <Link to="/" className="w-full mx-auto text-center">
-                            <img src={Logo} className="h-16 mx-auto" alt="logo" />
-                        </Link>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 p-4">
+            <div className="w-full max-w-6xl bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-emerald-100/50">
+                {/* Left Side - Form */}
+                <div className="w-full md:w-1/2 p-8 lg:p-12 flex flex-col justify-center">
+                    {/* Decorative Element */}
+                    <div className="flex items-center gap-2 mb-6">
+                        <div className="w-1 h-8 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
+                        <span className="text-xs font-medium text-emerald-600 tracking-wider uppercase">
+                            Tigersden Tourism
+                        </span>
+                    </div>
 
-                        <div className="text-center">
-                            <h2 className="text-3xl font-bold text-gray-900 font-family-primary mt-1">
-                                Create a New Account
-                            </h2>
-                            <p className="text-sm text-gray-500">
-                                Join and grow your business with us
-                            </p>
+                    {/* Logo & Brand */}
+                    <div className="mb-8">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                                <span className="text-2xl font-bold text-white">🐯</span>
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-800">
+                                    Join the Adventure
+                                </h1>
+                                <p className="text-sm text-gray-500">
+                                    Start your journey with us today
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Form */}
+                    <form className="space-y-5" onSubmit={handleSubmit(handleRegister)}>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Full Name
+                            </label>
+                            <input
+                                type="text"
+                                {...register("name")}
+                                className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 outline-none"
+                                placeholder="John Doe"
+                            />
+                            {errors.name && (
+                                <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                                    <span className="inline-block w-1 h-1 bg-red-500 rounded-full"></span>
+                                    {errors.name.message}
+                                </p>
+                            )}
                         </div>
 
-                        <form className="space-y-4" onSubmit={handleSubmit(handleRegister)}>
-                            {/* Name */}
-                            <div>
-                                <label
-                                    htmlFor="name"
-                                    className="block text-sm font-medium text-gray-700"
-                                >
-                                    Name
-                                </label>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Email Address
+                            </label>
+                            <input
+                                type="email"
+                                {...register("email")}
+                                className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 outline-none"
+                                placeholder="you@example.com"
+                            />
+                            {errors.email && (
+                                <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                                    <span className="inline-block w-1 h-1 bg-red-500 rounded-full"></span>
+                                    {errors.email.message}
+                                </p>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Phone Number (Optional)
+                            </label>
+                            <input
+                                type="tel"
+                                {...register("phone")}
+                                className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 outline-none"
+                                placeholder="+880 1XXX-XXXXXX"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Password
+                            </label>
+                            <div className="relative">
                                 <input
-                                    id="name"
-                                    type="text"
-                                    {...register("name")}
-                                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm"
-                                    placeholder="Your name"
+                                    type={showPassword ? "text" : "password"}
+                                    {...register("password")}
+                                    className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 outline-none pr-12"
+                                    placeholder="Create a strong password"
                                 />
-                                {errors.name && (
-                                    <p className="text-red-500 text-xs mt-1">
-                                        {errors.name.message}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* Email */}
-                            <div>
-                                <label
-                                    htmlFor="email"
-                                    className="block text-sm font-medium text-gray-700"
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                                 >
-                                    Email
-                                </label>
-                                <input
-                                    id="email"
-                                    type="email"
-                                    {...register("email")}
-                                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm"
-                                    placeholder="example@domain.com"
-                                />
-                                {errors.email && (
-                                    <p className="text-red-500 text-xs mt-1">
-                                        {errors.email.message}
-                                    </p>
-                                )}
+                                    {showPassword ? (
+                                        <EyeOff className="w-5 h-5" />
+                                    ) : (
+                                        <Eye className="w-5 h-5" />
+                                    )}
+                                </button>
                             </div>
+                            {errors.password && (
+                                <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                                    <span className="inline-block w-1 h-1 bg-red-500 rounded-full"></span>
+                                    {errors.password.message}
+                                </p>
+                            )}
+                        </div>
 
-                            {/* Password */}
-                            <div>
-                                <label
-                                    htmlFor="password"
-                                    className="block text-sm font-medium text-gray-700"
-                                >
-                                    Password
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        id="password"
-                                        type={showPassword ? "text" : "password"}
-                                        {...register("password")}
-                                        className="mt-1 w-full px-3 py-2 pr-10 border border-gray-300 rounded focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm"
-                                        placeholder="Enter your password"
-                                    />
-                                    <button
-                                        type="button"
-                                        className="absolute top-3 right-3 text-gray-400"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                    >
-                                        {showPassword ? (
-                                            <EyeOff className="w-5 h-5" />
-                                        ) : (
-                                            <Eye className="w-5 h-5" />
-                                        )}
-                                    </button>
-                                </div>
-                                {errors.password && (
-                                    <p className="text-red-500 text-xs mt-1">
-                                        {errors.password.message}
-                                    </p>
-                                )}
-                            </div>
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 disabled:opacity-70 disabled:cursor-not-allowed"
+                        >
+                            {isSubmitting ? (
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                            ) : (
+                                <>
+                                    <UserPlus className="w-5 h-5" />
+                                    Create Account
+                                </>
+                            )}
+                        </button>
+                    </form>
 
-                            {/* Submit */}
-                            <button
-                                type="submit"
-                                disabled={isSubmitting}
-                                className="w-full bg-[#3E6D2F] text-white font-semibold py-2 rounded flex items-center justify-center gap-2 hover:bg-[#345b28] transition cursor-pointer"
-                            >
-                                {isSubmitting ? (
-                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
-                                ) : (
-                                    <>
-                                        <UserPlus className="h-5 w-5" />
-                                        Register
-                                    </>
-                                )}
-                            </button>
-                        </form>
-
-                        <p className="text-center text-sm text-gray-600">
+                    <div className="mt-6 text-center">
+                        <p className="text-sm text-gray-600">
                             Already have an account?{" "}
                             <Link
                                 to="/login"
-                                className="text-green-700 font-medium hover:underline"
+                                className="text-emerald-600 font-medium hover:text-emerald-700 transition-colors"
                             >
-                                Login
+                                Sign in here
                             </Link>
                         </p>
                     </div>
+
+                    {/* Decorative Footer */}
+                    <div className="mt-8 flex items-center justify-center gap-6 text-xs text-gray-400">
+                        <span className="flex items-center gap-1">
+                            <Compass className="w-3 h-3" /> Explore
+                        </span>
+                        <span className="w-px h-4 bg-gray-200"></span>
+                        <span className="flex items-center gap-1">
+                            <Waves className="w-3 h-3" /> Adventure
+                        </span>
+                        <span className="w-px h-4 bg-gray-200"></span>
+                        <span className="flex items-center gap-1">
+                            <Mountain className="w-3 h-3" /> Discover
+                        </span>
+                    </div>
                 </div>
 
-                {/* Right: Image */}
-                <div className="w-full md:w-1/2 h-[300px] md:h-[650px]">
-                    <img
-                        src="/register.png"
-                        alt="Register Illustration"
-                        className="w-full h-full object-cover rounded-l-3xl"
-                    />
+                {/* Right Side - Image */}
+                <div className="hidden md:block w-1/2 relative bg-gradient-to-br from-emerald-600 to-teal-700 p-8">
+                    <div className="h-full rounded-2xl overflow-hidden relative">
+                        <img
+                            src="https://images.unsplash.com/photo-1533105079780-92b9be482077?w=800&auto=format&fit=crop"
+                            alt="Travel Community"
+                            className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent"></div>
+
+                        {/* Overlay Quote */}
+                        <div className="absolute bottom-8 left-8 right-8 text-white">
+                            <blockquote className="text-xl font-light italic leading-relaxed">
+                                "Travel is the only thing you buy that makes you richer."
+                            </blockquote>
+                            <p className="text-sm text-white/70 mt-2 font-medium">— Unknown</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
