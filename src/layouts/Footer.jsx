@@ -11,7 +11,6 @@ import {
     Sparkles,
     Plane,
     Briefcase,
-    Stethoscope,
     CalendarDays,
     Building2,
     FileText,
@@ -20,6 +19,7 @@ import {
     MessageCircle,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import Logo from "/logo.png";
 
 export default function Footer() {
     const [email, setEmail] = useState("");
@@ -100,9 +100,9 @@ export default function Footer() {
                             transition={{ duration: 0.5 }}
                         >
                             <img
-                                src="https://res.cloudinary.com/dcilg3xjd/image/upload/v1775128337/Tigerden_Logo_1_lczgyo.png"
+                                src={Logo}
                                 alt="Tigerden Tourism"
-                                className="h-14 w-auto object-contain brightness-0 invert mb-4"
+                                className="h-30 w-auto object-cover mb-4"
                             />
                             <p className="text-gray-400 text-sm leading-relaxed">
                                 Your trusted partner for seamless travel experiences, visa

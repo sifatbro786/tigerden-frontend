@@ -22,11 +22,9 @@ import UserManagement from "../pages/dashboard/UserManagement";
 import PageMetaManagement from "../pages/dashboard/PageMetaManagement";
 
 export default function AppRoutes() {
-    // const { user } = useAuth();
-
     return (
         <Routes>
-            {/* Frontend Routes */}
+            {/* Frontend Routes with Layout */}
             <Route path="/" element={<FrontendLayout />}>
                 <Route index element={<HomePage />} />
                 <Route path="/about" element={<About />} />
@@ -34,7 +32,6 @@ export default function AppRoutes() {
                 <Route path="/visa-processing" element={<VisaProcessing />} />
                 <Route path="/air-ticket" element={<AirTicketBooking />} />
                 <Route path="/package/:category/:id" element={<PackageDetails />} />
-                <Route path="*" element={<NotFound />} />
             </Route>
 
             {/* Auth Routes */}
@@ -60,17 +57,8 @@ export default function AppRoutes() {
                 <Route path="page-meta" element={<PageMetaManagement />} />
             </Route>
 
-            {/* Fallback */}
-            {/* <Route
-                path="*"
-                element={
-                    user && user.role === "admin" || user.role === "super_admin" ? (
-                        <Navigate to="/dashboard" replace />
-                    ) : (
-                        <Navigate to="/login" replace />
-                    )
-                }
-            /> */}
+            {/* 404 Not Found */}
+            <Route path="*" element={<NotFound />} />
         </Routes>
     );
 }
