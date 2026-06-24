@@ -108,7 +108,7 @@ export default function LoginPage() {
                     {
                         theme: "outline",
                         size: "large",
-                        width: "300px",
+                        width: "220px",
                         text: "continue_with",
                         logo_alignment: "center",
                     },
