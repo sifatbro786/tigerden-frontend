@@ -108,7 +108,7 @@ export default function LoginPage() {
                     {
                         theme: "outline",
                         size: "large",
-                        width: "100%",
+                        width: "360px",
                         text: "continue_with",
                         logo_alignment: "center",
                     },
@@ -263,11 +263,8 @@ export default function LoginPage() {
                     </div>
 
                     {/* Google Sign In */}
-                    <div className="w-full flex justify-center items-center">
-                        <div
-                            id="google-signin-button"
-                            className="w-full min-w-[250px] max-w-[400px]"
-                        ></div>
+                    <div className="w-full flex justify-center">
+                        <div id="google-signin-button"></div>
                     </div>
 
                     <div className="mt-6 text-center">
