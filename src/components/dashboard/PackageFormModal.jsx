@@ -13,10 +13,13 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
         featured: false,
         isFlashSale: false,
         flashSaleEndTime: "",
-        images: [],
+        images: [], // new File uploads only
     });
 
-    const [previewImages, setPreviewImages] = useState([]);
+    // Existing images (from DB) tracked separately, with public_id so
+    // we know exactly which ones to keep/remove on submit.
+    const [existingImages, setExistingImages] = useState([]); // [{ url, public_id }]
+    const [newPreviews, setNewPreviews] = useState([]); // preview URLs for newly added files
 
     useEffect(() => {
         if (initialData) {
@@ -31,7 +34,8 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                 flashSaleEndTime: initialData.flashSaleEndTime?.split("T")[0] || "",
                 images: [],
             });
-            setPreviewImages(initialData.images?.map((img) => img.url) || []);
+            setExistingImages(initialData.images || []);
+            setNewPreviews([]);
         } else {
             setFormData({
                 title: { en: "", bn: "" },
@@ -44,7 +48,8 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                 flashSaleEndTime: "",
                 images: [],
             });
-            setPreviewImages([]);
+            setExistingImages([]);
+            setNewPreviews([]);
         }
     }, [initialData, isOpen]);
 
@@ -66,28 +71,27 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
-        setFormData((prev) => ({
-            ...prev,
-            images: [...prev.images, ...files],
-        }));
-
-        // Create preview URLs
-        const previews = files.map((file) => URL.createObjectURL(file));
-        setPreviewImages((prev) => [...prev, ...previews]);
+        setFormData((prev) => ({ ...prev, images: [...prev.images, ...files] }));
+        setNewPreviews((prev) => [...prev, ...files.map((file) => URL.createObjectURL(file))]);
     };
 
-    const removeImage = (index) => {
+    // Remove an existing (already-uploaded) image
+    const removeExistingImage = (publicId) => {
+        setExistingImages((prev) => prev.filter((img) => img.public_id !== publicId));
+    };
+
+    // Remove a newly-added (not-yet-uploaded) image
+    const removeNewImage = (index) => {
         setFormData((prev) => ({
             ...prev,
             images: prev.images.filter((_, i) => i !== index),
         }));
-        setPreviewImages((prev) => prev.filter((_, i) => i !== index));
+        setNewPreviews((prev) => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Validation
         if (!formData.title.en || !formData.title.bn) {
             toast.error("Both English and Bangla titles are required");
             return;
@@ -100,14 +104,26 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
             toast.error("Valid price is required");
             return;
         }
+        if (existingImages.length + formData.images.length === 0) {
+            toast.error("At least one image is required");
+            return;
+        }
+        if (existingImages.length + formData.images.length > 5) {
+            toast.error("Maximum 5 images allowed");
+            return;
+        }
 
         const submitData = {
             ...formData,
             price: parseFloat(formData.price),
         };
 
-        // For update, don't send images if no new ones
-        if (initialData && formData.images.length === 0) {
+        // Tell the backend exactly which existing images to keep.
+        if (initialData) {
+            submitData.keepImages = existingImages.map((img) => img.public_id);
+        }
+
+        if (formData.images.length === 0) {
             delete submitData.images;
         }
 
@@ -119,13 +135,11 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
     return (
         <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex items-center justify-center min-h-screen p-4">
-                {/* Backdrop */}
                 <div
                     className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
                     onClick={onClose}
                 />
 
-                {/* Modal */}
                 <div className="relative bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                     <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
                         <h3 className="text-xl font-bold text-gray-900">
@@ -292,6 +306,34 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Package Images (Max 5)
                             </label>
+
+                            {/* Existing images (already uploaded, removable) */}
+                            {existingImages.length > 0 && (
+                                <>
+                                    <p className="text-xs text-gray-500 mb-2">Current images</p>
+                                    <div className="flex flex-wrap gap-3 mb-4">
+                                        {existingImages.map((img) => (
+                                            <div key={img.public_id} className="relative w-24 h-24">
+                                                <img
+                                                    src={img.url}
+                                                    alt="Existing"
+                                                    className="w-full h-full object-cover rounded-lg"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        removeExistingImage(img.public_id)
+                                                    }
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                                                >
+                                                    <XIcon className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+
                             <input
                                 type="file"
                                 accept="image/*"
@@ -299,30 +341,36 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                                 onChange={handleImageChange}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                             />
-                            {previewImages.length > 0 && (
-                                <div className="mt-3 flex flex-wrap gap-3">
-                                    {previewImages.map((src, index) => (
-                                        <div key={index} className="relative w-24 h-24">
-                                            <img
-                                                src={src}
-                                                alt={`Preview ${index + 1}`}
-                                                className="w-full h-full object-cover rounded-lg"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => removeImage(index)}
-                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
-                                            >
-                                                <XIcon className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
+
+                            {/* New images (not yet uploaded, removable) */}
+                            {newPreviews.length > 0 && (
+                                <>
+                                    <p className="text-xs text-gray-500 mt-3 mb-2">
+                                        New images to upload
+                                    </p>
+                                    <div className="flex flex-wrap gap-3">
+                                        {newPreviews.map((src, index) => (
+                                            <div key={index} className="relative w-24 h-24">
+                                                <img
+                                                    src={src}
+                                                    alt={`New ${index + 1}`}
+                                                    className="w-full h-full object-cover rounded-lg"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeNewImage(index)}
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                                                >
+                                                    <XIcon className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
                             )}
-                            <p className="text-xs text-gray-500 mt-1">
-                                {initialData
-                                    ? "Add new images to append to existing ones"
-                                    : "Upload up to 5 images"}
+
+                            <p className="text-xs text-gray-500 mt-2">
+                                {existingImages.length + formData.images.length}/5 images selected
                             </p>
                         </div>
 
