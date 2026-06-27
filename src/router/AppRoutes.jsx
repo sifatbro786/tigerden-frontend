@@ -16,7 +16,6 @@ import TestimonialsManagement from "../pages/dashboard/TestimonialsManagement";
 import CouponsManagement from "../pages/dashboard/CouponsManagement";
 import NotFound from "../pages/client/NotFound";
 import VisaProcessing from "../pages/client/VisaProcessing";
-import AirTicketBooking from "../pages/client/AirTicketBooking";
 import PackageDetails from "../pages/client/PackageDetails";
 import UserManagement from "../pages/dashboard/UserManagement";
 import PageMetaManagement from "../pages/dashboard/PageMetaManagement";
@@ -30,7 +29,6 @@ export default function AppRoutes() {
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/visa-processing" element={<VisaProcessing />} />
-                <Route path="/air-ticket" element={<AirTicketBooking />} />
                 <Route path="/package/:category/:id" element={<PackageDetails />} />
             </Route>
 

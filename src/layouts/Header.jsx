@@ -19,7 +19,7 @@ import Logo from "/logo.png";
 const navigation = [
     { name: "Home", href: "/" },
     { name: "Visa Processing", href: "/visa-processing" },
-    { name: "Air Ticket", href: "/air-ticket" },
+    // { name: "Air Ticket", href: "/air-ticket" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
 ];

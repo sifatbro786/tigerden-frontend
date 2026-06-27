@@ -41,7 +41,7 @@ export default function Footer() {
     const footerLinks = {
         services: [
             { name: "Visa Processing", href: "/visa-processing", icon: CalendarDays },
-            { name: "Air Ticket Booking", href: "/air-ticket", icon: Plane },
+            { name: "Packages", href: "/packages", icon: Plane },
             { name: "Exclusive Packages", href: "/", icon: Briefcase },
         ],
         company: [
