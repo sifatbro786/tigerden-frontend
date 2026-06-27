@@ -19,6 +19,7 @@ import VisaProcessing from "../pages/client/VisaProcessing";
 import PackageDetails from "../pages/client/PackageDetails";
 import UserManagement from "../pages/dashboard/UserManagement";
 import PageMetaManagement from "../pages/dashboard/PageMetaManagement";
+import BookingManagement from "../pages/dashboard/BookingManagement";
 
 export default function AppRoutes() {
     return (
@@ -47,6 +48,7 @@ export default function AppRoutes() {
             >
                 <Route index element={<DashboardHome />} />
                 <Route path="packages" element={<PackagesManagement />} />
+                <Route path="bookings" element={<BookingManagement />} />
                 <Route path="blogs" element={<BlogsManagement />} />
                 <Route path="team" element={<TeamManagement />} />
                 <Route path="testimonials" element={<TestimonialsManagement />} />

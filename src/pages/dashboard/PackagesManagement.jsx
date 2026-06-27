@@ -9,6 +9,9 @@ import {
     PackageIcon,
     EyeIcon,
     EyeOffIcon,
+    MapPinIcon,
+    CalendarIcon,
+    DollarSignIcon,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import api, { formDataApi } from "../../services/api";
@@ -24,11 +27,11 @@ const PackagesManagement = () => {
 
     const queryClient = useQueryClient();
 
-    // Fetch packages
+    // Fetch packages using admin endpoint for full access
     const { data, isLoading, error } = useQuery({
         queryKey: ["admin-packages"],
         queryFn: async () => {
-            const { data } = await api.get("/packages");
+            const { data } = await api.get("/admin/packages");
             return data;
         },
     });
@@ -104,7 +107,11 @@ const PackagesManagement = () => {
     const filteredPackages = packages.filter(
         (pkg) =>
             pkg.title?.en?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            pkg.title?.bn?.includes(searchTerm),
+            pkg.title?.bn?.includes(searchTerm) ||
+            pkg.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            pkg.region?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            pkg.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            pkg.city?.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     if (isLoading) {
@@ -133,7 +140,12 @@ const PackagesManagement = () => {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h2 className="text-2xl font-bold text-gray-900">Packages Management</h2>
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Packages Management</h2>
+                    <p className="text-sm text-gray-500 mt-1">
+                        {packages.length} packages found
+                    </p>
+                </div>
                 <button
                     onClick={() => {
                         setSelectedPackage(null);
@@ -151,7 +163,7 @@ const PackagesManagement = () => {
                 <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                     type="text"
-                    placeholder="Search packages..."
+                    placeholder="Search by title, location, region, country..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
@@ -220,6 +232,40 @@ const PackagesManagement = () => {
                             <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                                 {pkg.description.en}
                             </p>
+                            
+                            {/* Location & Region Info */}
+                            <div className="flex flex-wrap items-center gap-2 mb-2 text-xs text-gray-500">
+                                {pkg.location && (
+                                    <span className="flex items-center gap-1 bg-gray-50 px-2 py-0.5 rounded">
+                                        <MapPinIcon className="w-3 h-3" />
+                                        {pkg.location}
+                                    </span>
+                                )}
+                                {pkg.region && (
+                                    <span className="bg-gray-50 px-2 py-0.5 rounded">
+                                        {pkg.region}
+                                    </span>
+                                )}
+                                {pkg.country && (
+                                    <span className="bg-gray-50 px-2 py-0.5 rounded">
+                                        {pkg.country}
+                                    </span>
+                                )}
+                                {pkg.city && (
+                                    <span className="bg-gray-50 px-2 py-0.5 rounded">
+                                        {pkg.city}
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Ideal Months */}
+                            {pkg.idealMonths && pkg.idealMonths.length > 0 && (
+                                <div className="flex items-center gap-1 mb-2 text-xs text-gray-500">
+                                    <CalendarIcon className="w-3 h-3" />
+                                    <span>Best: {pkg.idealMonths.join(", ")}</span>
+                                </div>
+                            )}
+
                             <div className="flex items-center justify-between mb-3">
                                 <span className="text-lg font-bold text-emerald-600">
                                     ${pkg.price}

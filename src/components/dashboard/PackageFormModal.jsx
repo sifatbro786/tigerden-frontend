@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { XIcon } from "lucide-react";
 import toast from "react-hot-toast";
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
     const [formData, setFormData] = useState({
         title: { en: "", bn: "" },
@@ -10,16 +12,18 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
         price: "",
         duration: "",
         location: "",
+        region: "",
+        country: "",
+        city: "",
+        idealMonths: [],
         featured: false,
         isFlashSale: false,
         flashSaleEndTime: "",
-        images: [], // new File uploads only
+        images: [],
     });
 
-    // Existing images (from DB) tracked separately, with public_id so
-    // we know exactly which ones to keep/remove on submit.
-    const [existingImages, setExistingImages] = useState([]); // [{ url, public_id }]
-    const [newPreviews, setNewPreviews] = useState([]); // preview URLs for newly added files
+    const [existingImages, setExistingImages] = useState([]);
+    const [newPreviews, setNewPreviews] = useState([]);
 
     useEffect(() => {
         if (initialData) {
@@ -29,6 +33,10 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                 price: initialData.price || "",
                 duration: initialData.duration || "",
                 location: initialData.location || "",
+                region: initialData.region || "",
+                country: initialData.country || "",
+                city: initialData.city || "",
+                idealMonths: initialData.idealMonths || [],
                 featured: initialData.featured || false,
                 isFlashSale: initialData.isFlashSale || false,
                 flashSaleEndTime: initialData.flashSaleEndTime?.split("T")[0] || "",
@@ -43,6 +51,10 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                 price: "",
                 duration: "",
                 location: "",
+                region: "",
+                country: "",
+                city: "",
+                idealMonths: [],
                 featured: false,
                 isFlashSale: false,
                 flashSaleEndTime: "",
@@ -61,6 +73,12 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                 ...prev,
                 [field]: { ...prev[field], [lang]: value },
             }));
+        } else if (name === "idealMonths") {
+            const selected = Array.from(
+                e.target.selectedOptions,
+                (option) => option.value
+            );
+            setFormData((prev) => ({ ...prev, idealMonths: selected }));
         } else {
             setFormData((prev) => ({
                 ...prev,
@@ -71,22 +89,36 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
+        const totalImages = existingImages.length + formData.images.length + files.length;
+        if (totalImages > 5) {
+            toast.error("Maximum 5 images allowed");
+            return;
+        }
         setFormData((prev) => ({ ...prev, images: [...prev.images, ...files] }));
         setNewPreviews((prev) => [...prev, ...files.map((file) => URL.createObjectURL(file))]);
     };
 
-    // Remove an existing (already-uploaded) image
     const removeExistingImage = (publicId) => {
         setExistingImages((prev) => prev.filter((img) => img.public_id !== publicId));
     };
 
-    // Remove a newly-added (not-yet-uploaded) image
     const removeNewImage = (index) => {
         setFormData((prev) => ({
             ...prev,
             images: prev.images.filter((_, i) => i !== index),
         }));
         setNewPreviews((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const toggleMonth = (month) => {
+        setFormData((prev) => {
+            const current = prev.idealMonths || [];
+            if (current.includes(month)) {
+                return { ...prev, idealMonths: current.filter((m) => m !== month) };
+            } else {
+                return { ...prev, idealMonths: [...current, month] };
+            }
+        });
     };
 
     const handleSubmit = (e) => {
@@ -108,17 +140,12 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
             toast.error("At least one image is required");
             return;
         }
-        if (existingImages.length + formData.images.length > 5) {
-            toast.error("Maximum 5 images allowed");
-            return;
-        }
 
         const submitData = {
             ...formData,
             price: parseFloat(formData.price),
         };
 
-        // Tell the backend exactly which existing images to keep.
         if (initialData) {
             submitData.keepImages = existingImages.map((img) => img.public_id);
         }
@@ -165,7 +192,7 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                                     name="title.en"
                                     value={formData.title.en}
                                     onChange={handleInputChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
                                     required
                                 />
                             </div>
@@ -178,7 +205,7 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                                     name="title.bn"
                                     value={formData.title.bn}
                                     onChange={handleInputChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-bangla"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none font-bangla"
                                     required
                                 />
                             </div>
@@ -195,7 +222,7 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                                     value={formData.description.en}
                                     onChange={handleInputChange}
                                     rows="3"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
                                     required
                                 />
                             </div>
@@ -208,7 +235,7 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                                     value={formData.description.bn}
                                     onChange={handleInputChange}
                                     rows="3"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-bangla"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none font-bangla"
                                     required
                                 />
                             </div>
@@ -227,7 +254,7 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                                     onChange={handleInputChange}
                                     min="0"
                                     step="0.01"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
                                     required
                                 />
                             </div>
@@ -240,24 +267,106 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                                     name="duration"
                                     value={formData.duration}
                                     onChange={handleInputChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
                                 />
                             </div>
                         </div>
 
-                        {/* Location & Flash Sale */}
+                        {/* Location, Region, Country, City */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Location
+                                    Location (General)
                                 </label>
                                 <input
                                     type="text"
                                     name="location"
                                     value={formData.location}
                                     onChange={handleInputChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    placeholder="e.g., Cox's Bazar"
                                 />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Region
+                                </label>
+                                <input
+                                    type="text"
+                                    name="region"
+                                    value={formData.region}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    placeholder="e.g., South Asia"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Country
+                                </label>
+                                <input
+                                    type="text"
+                                    name="country"
+                                    value={formData.country}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    placeholder="e.g., Bangladesh"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    City
+                                </label>
+                                <input
+                                    type="text"
+                                    name="city"
+                                    value={formData.city}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    placeholder="e.g., Cox's Bazar"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Ideal Months */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Best Months to Visit
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                                {MONTHS.map((month) => (
+                                    <button
+                                        key={month}
+                                        type="button"
+                                        onClick={() => toggleMonth(month)}
+                                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                                            (formData.idealMonths || []).includes(month)
+                                                ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                        }`}
+                                    >
+                                        {month}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Select the best months for this destination
+                            </p>
+                        </div>
+
+                        {/* Flash Sale */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    name="isFlashSale"
+                                    checked={formData.isFlashSale}
+                                    onChange={handleInputChange}
+                                    className="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
+                                />
+                                <span className="text-sm font-medium text-gray-700">
+                                    Enable Flash Sale
+                                </span>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -268,7 +377,8 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                                     name="flashSaleEndTime"
                                     value={formData.flashSaleEndTime}
                                     onChange={handleInputChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    disabled={!formData.isFlashSale}
                                 />
                             </div>
                         </div>
@@ -281,22 +391,10 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                                     name="featured"
                                     checked={formData.featured}
                                     onChange={handleInputChange}
-                                    className="w-4 h-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                                    className="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                                 />
                                 <span className="text-sm font-medium text-gray-700">
                                     Featured Package
-                                </span>
-                            </label>
-                            <label className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    name="isFlashSale"
-                                    checked={formData.isFlashSale}
-                                    onChange={handleInputChange}
-                                    className="w-4 h-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                                />
-                                <span className="text-sm font-medium text-gray-700">
-                                    Enable Flash Sale
                                 </span>
                             </label>
                         </div>
@@ -307,7 +405,6 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                                 Package Images (Max 5)
                             </label>
 
-                            {/* Existing images (already uploaded, removable) */}
                             {existingImages.length > 0 && (
                                 <>
                                     <p className="text-xs text-gray-500 mb-2">Current images</p>
@@ -321,9 +418,7 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                                                 />
                                                 <button
                                                     type="button"
-                                                    onClick={() =>
-                                                        removeExistingImage(img.public_id)
-                                                    }
+                                                    onClick={() => removeExistingImage(img.public_id)}
                                                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
                                                 >
                                                     <XIcon className="w-4 h-4" />
@@ -339,10 +434,9 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                                 accept="image/*"
                                 multiple
                                 onChange={handleImageChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
                             />
 
-                            {/* New images (not yet uploaded, removable) */}
                             {newPreviews.length > 0 && (
                                 <>
                                     <p className="text-xs text-gray-500 mt-3 mb-2">
@@ -386,7 +480,7 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="btn-primary px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isLoading
                                     ? "Saving..."

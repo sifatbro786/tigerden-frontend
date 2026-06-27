@@ -29,7 +29,7 @@ const BlogsManagement = () => {
     const { data, isLoading, error } = useQuery({
         queryKey: ["admin-blogs"],
         queryFn: async () => {
-            const { data } = await api.get("/blogs");
+            const { data } = await api.get("/admin/blogs");
             return data;
         },
     });
