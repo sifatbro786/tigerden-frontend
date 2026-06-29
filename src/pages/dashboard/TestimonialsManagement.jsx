@@ -19,7 +19,7 @@ const TestimonialsManagement = () => {
     const { data, isLoading, error } = useQuery({
         queryKey: ["testimonials"],
         queryFn: async () => {
-            const { data } = await api.get("/testimonials");
+            const { data } = await api.get("/admin/testimonials");
             return data;
         },
     });
