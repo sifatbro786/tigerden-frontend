@@ -117,4 +117,19 @@ export const pageMetaApi = {
     toggleStatus: (id, updatedBy) => api.patch(`/admin/page-meta/${id}/toggle`, { updatedBy }),
 };
 
+// Contact API endpoints
+export const contactApi = {
+    // Get all contact inquiries
+    getAll: (params = {}) => {
+        const queryString = new URLSearchParams(params).toString();
+        return api.get(`/admin/contact${queryString ? `?${queryString}` : ""}`);
+    },
+
+    // Get a single inquiry by ID
+    getById: (id) => api.get(`/admin/contact/${id}`),
+
+    // Update inquiry status
+    updateStatus: (id, status) => api.patch(`/admin/contact/${id}/status`, { status }),
+};
+
 export default api;

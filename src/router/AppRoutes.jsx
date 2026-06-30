@@ -20,6 +20,8 @@ import PackageDetails from "../pages/client/PackageDetails";
 import UserManagement from "../pages/dashboard/UserManagement";
 import PageMetaManagement from "../pages/dashboard/PageMetaManagement";
 import BookingManagement from "../pages/dashboard/BookingManagement";
+import CategoryManagement from "../pages/dashboard/CategoryManagement";
+import ContactManagement from "../pages/dashboard/ContactManagement";
 
 export default function AppRoutes() {
     return (
@@ -48,7 +50,9 @@ export default function AppRoutes() {
             >
                 <Route index element={<DashboardHome />} />
                 <Route path="packages" element={<PackagesManagement />} />
+                <Route path="categories" element={<CategoryManagement />} />
                 <Route path="bookings" element={<BookingManagement />} />
+                <Route path="contacts" element={<ContactManagement />} />
                 <Route path="blogs" element={<BlogsManagement />} />
                 <Route path="team" element={<TeamManagement />} />
                 <Route path="testimonials" element={<TestimonialsManagement />} />

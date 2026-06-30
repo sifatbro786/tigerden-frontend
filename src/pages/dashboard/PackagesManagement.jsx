@@ -12,6 +12,7 @@ import {
     MapPinIcon,
     CalendarIcon,
     DollarSignIcon,
+    ClockIcon,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import api, { formDataApi } from "../../services/api";
@@ -27,7 +28,6 @@ const PackagesManagement = () => {
 
     const queryClient = useQueryClient();
 
-    // Fetch packages using admin endpoint for full access
     const { data, isLoading, error } = useQuery({
         queryKey: ["admin-packages"],
         queryFn: async () => {
@@ -128,7 +128,7 @@ const PackagesManagement = () => {
                 <p className="text-red-600">Error loading packages: {error.message}</p>
                 <button
                     onClick={() => queryClient.invalidateQueries(["admin-packages"])}
-                    className="mt-4 btn-primary"
+                    className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
                 >
                     Retry
                 </button>
@@ -175,8 +175,9 @@ const PackagesManagement = () => {
                 {filteredPackages.map((pkg) => (
                     <div
                         key={pkg._id}
-                        className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow"
+                        className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300"
                     >
+                        {/* Image */}
                         <div className="relative h-48 bg-gray-100">
                             {pkg.images && pkg.images.length > 0 ? (
                                 <img
@@ -189,18 +190,28 @@ const PackagesManagement = () => {
                                     <PackageIcon className="w-12 h-12" />
                                 </div>
                             )}
+                            
+                            {/* Badges */}
                             <div className="absolute top-2 right-2 flex flex-col gap-1">
-                                {pkg.isFlashSale && (
-                                    <span className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                                {pkg.isFlashSale && pkg.isFlashSaleLive && (
+                                    <span className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded shadow-lg animate-pulse">
                                         🔥 Flash Sale
                                     </span>
                                 )}
                                 {pkg.featured && (
-                                    <span className="bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                                    <span className="bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded shadow-lg">
                                         ⭐ Featured
                                     </span>
                                 )}
+                                {pkg.idealMonths && pkg.idealMonths.length > 0 && (
+                                    <span className="bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded shadow-lg">
+                                        📅 Best: {pkg.idealMonths.slice(0, 3).join(", ")}
+                                        {pkg.idealMonths.length > 3 && "..."}
+                                    </span>
+                                )}
                             </div>
+
+                            {/* Active Toggle */}
                             <button
                                 onClick={() =>
                                     toggleActive.mutate({
@@ -208,7 +219,7 @@ const PackagesManagement = () => {
                                         isActive: pkg.isActive,
                                     })
                                 }
-                                className={`absolute bottom-2 right-2 text-xs px-3 py-1 rounded-full font-medium transition-colors flex items-center gap-1 ${
+                                className={`absolute bottom-2 right-2 text-xs px-3 py-1 rounded-full font-medium transition-colors flex items-center gap-1 shadow-lg ${
                                     pkg.isActive
                                         ? "bg-emerald-500 text-white hover:bg-emerald-600"
                                         : "bg-gray-500 text-white hover:bg-gray-600"
@@ -227,14 +238,21 @@ const PackagesManagement = () => {
                                 )}
                             </button>
                         </div>
+
+                        {/* Content */}
                         <div className="p-4">
-                            <h3 className="font-semibold text-gray-900 mb-1">{pkg.title.en}</h3>
+                            <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
+                                {pkg.title.en}
+                            </h3>
+                            <p className="text-sm text-gray-500 mb-1 line-clamp-1">
+                                {pkg.title.bn}
+                            </p>
                             <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                                {pkg.description.en}
+                                {pkg.shortDescription?.en || pkg.description?.en || ""}
                             </p>
                             
-                            {/* Location & Region Info */}
-                            <div className="flex flex-wrap items-center gap-2 mb-2 text-xs text-gray-500">
+                            {/* Location */}
+                            <div className="flex flex-wrap items-center gap-1 mb-2 text-xs text-gray-500">
                                 {pkg.location && (
                                     <span className="flex items-center gap-1 bg-gray-50 px-2 py-0.5 rounded">
                                         <MapPinIcon className="w-3 h-3" />
@@ -258,22 +276,39 @@ const PackagesManagement = () => {
                                 )}
                             </div>
 
-                            {/* Ideal Months */}
-                            {pkg.idealMonths && pkg.idealMonths.length > 0 && (
-                                <div className="flex items-center gap-1 mb-2 text-xs text-gray-500">
-                                    <CalendarIcon className="w-3 h-3" />
-                                    <span>Best: {pkg.idealMonths.join(", ")}</span>
+                            {/* Duration & Price */}
+                            <div className="flex items-center justify-between mb-3">
+                                <div>
+                                    <span className="text-lg font-bold text-emerald-600">
+                                        ৳{pkg.discountedPrice}
+                                    </span>
+                                    {pkg.originalPrice > pkg.discountedPrice && (
+                                        <span className="text-sm text-gray-400 line-through ml-2">
+                                            ৳{pkg.originalPrice}
+                                        </span>
+                                    )}
+                                    {pkg.discountPercentage > 0 && (
+                                        <span className="ml-1 text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded">
+                                            -{Math.round(pkg.discountPercentage)}%
+                                        </span>
+                                    )}
+                                </div>
+                                {pkg.duration && (
+                                    <span className="text-sm text-gray-500 flex items-center gap-1">
+                                        <ClockIcon className="w-3 h-3" />
+                                        {pkg.duration}
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Category */}
+                            {pkg.category && (
+                                <div className="text-xs text-gray-400 mb-2">
+                                    Category: {pkg.category.name?.en || "Uncategorized"}
                                 </div>
                             )}
 
-                            <div className="flex items-center justify-between mb-3">
-                                <span className="text-lg font-bold text-emerald-600">
-                                    ${pkg.price}
-                                </span>
-                                {pkg.duration && (
-                                    <span className="text-sm text-gray-500">{pkg.duration}</span>
-                                )}
-                            </div>
+                            {/* Actions */}
                             <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                                 <div className="flex items-center space-x-2">
                                     <button

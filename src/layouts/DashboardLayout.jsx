@@ -17,6 +17,8 @@ import {
     KeyRoundIcon,
     Tags,
     CreditCardIcon,
+    TagIcon,
+    MailIcon,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import ChangePasswordModal from "../components/dashboard/ChangePasswordModal";
@@ -39,8 +41,10 @@ const DashboardLayout = () => {
 
     const navigationItems = [
         { path: "/dashboard", icon: HomeIcon, label: "Dashboard" },
+        { path: "/dashboard/categories", icon: TagIcon, label: "Categories" },
         { path: "/dashboard/packages", icon: PackageIcon, label: "Packages" },
         { path: '/dashboard/bookings', icon: CreditCardIcon, label: 'Bookings' },
+        { path: "/dashboard/contacts", icon: MailIcon, label: "Contacts" },
         { path: "/dashboard/blogs", icon: FileTextIcon, label: "Blogs" },
         { path: "/dashboard/team", icon: UsersIcon, label: "Team" },
         { path: "/dashboard/testimonials", icon: MessageSquareIcon, label: "Testimonials" },
