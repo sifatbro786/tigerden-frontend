@@ -1,0 +1,44 @@
+const LocalizedTextarea = ({
+    label,
+    required,
+    valueEn,
+    valueBn,
+    onChangeEn,
+    onChangeBn,
+    placeholderEn = "English",
+    placeholderBn = "বাংলা",
+    rows = 3,
+}) => (
+    <div>
+        {label && (
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                {label}
+                {required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+        )}
+        <div className="grid grid-cols-2 gap-2">
+            <div>
+                <textarea
+                    value={valueEn}
+                    onChange={(e) => onChangeEn(e.target.value)}
+                    placeholder={placeholderEn}
+                    rows={rows}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors resize-y"
+                />
+                <p className="text-[11px] text-gray-400 mt-0.5">English</p>
+            </div>
+            <div>
+                <textarea
+                    value={valueBn}
+                    onChange={(e) => onChangeBn(e.target.value)}
+                    placeholder={placeholderBn}
+                    rows={rows}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors resize-y"
+                />
+                <p className="text-[11px] text-gray-400 mt-0.5">বাংলা</p>
+            </div>
+        </div>
+    </div>
+);
+
+export default LocalizedTextarea;

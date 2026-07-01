@@ -1,33 +1,25 @@
-// src/services/api.js
 import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const api = axios.create({
     baseURL: API_BASE_URL,
-    headers: {
-        "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
 });
 
-// Request interceptor to add token
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
+        if (token) config.headers.Authorization = `Bearer ${token}`;
         return config;
     },
     (error) => Promise.reject(error),
 );
 
-// Response interceptor for error handling
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        const { response } = error;
-        if (response?.status === 401) {
+        if (error.response?.status === 401) {
             localStorage.removeItem("token");
             localStorage.removeItem("user");
             window.location.href = "/login";
@@ -36,100 +28,67 @@ api.interceptors.response.use(
     },
 );
 
-// Helper for multipart/form-data
+// ─── FormData builder ──────────────────────────────────────────────────────────
+// Handles: File (single), File[] (multi-upload), primitive[], object → JSON string
+const buildFormData = (data) => {
+    const formData = new FormData();
+    Object.keys(data).forEach((key) => {
+        const val = data[key];
+        if (val === null || val === undefined) return;
+
+        if (Array.isArray(val)) {
+            const hasFiles = val.some((item) => item instanceof File);
+            if (hasFiles) {
+                // multi-file upload (e.g. gallery) — append each File separately
+                val.forEach((item) => {
+                    if (item instanceof File) formData.append(key, item);
+                });
+            } else {
+                // primitive/object array — JSON-stringify so backend can parse it
+                formData.append(key, JSON.stringify(val));
+            }
+        } else if (val instanceof File) {
+            // single file (e.g. coverImage)
+            formData.append(key, val);
+        } else if (typeof val === "object") {
+            formData.append(key, JSON.stringify(val));
+        } else {
+            formData.append(key, val);
+        }
+    });
+    return formData;
+};
+
 export const formDataApi = {
-    post: (url, data) => {
-        const formData = new FormData();
-        Object.keys(data).forEach((key) => {
-            if (data[key] !== null && data[key] !== undefined) {
-                if (Array.isArray(data[key])) {
-                    const hasFiles = data[key].some((item) => item instanceof File);
-                    if (hasFiles) {
-                        // multi-image upload case (e.g. package images)
-                        data[key].forEach((item) => {
-                            if (item instanceof File) formData.append(key, item);
-                        });
-                    } else {
-                        // primitive array (e.g. expertise) — always send, even if empty
-                        formData.append(key, JSON.stringify(data[key]));
-                    }
-                } else if (data[key] instanceof File) {
-                    formData.append(key, data[key]);
-                } else if (typeof data[key] === "object" && !(data[key] instanceof File)) {
-                    formData.append(key, JSON.stringify(data[key]));
-                } else {
-                    formData.append(key, data[key]);
-                }
-            }
-        });
-        return api.post(url, formData, {
+    post: (url, data) =>
+        api.post(url, buildFormData(data), {
             headers: { "Content-Type": "multipart/form-data" },
-        });
-    },
-    put: (url, data) => {
-        const formData = new FormData();
-        Object.keys(data).forEach((key) => {
-            if (data[key] !== null && data[key] !== undefined) {
-                if (Array.isArray(data[key])) {
-                    const hasFiles = data[key].some((item) => item instanceof File);
-                    if (hasFiles) {
-                        // multi-image upload case (e.g. package images)
-                        data[key].forEach((item) => {
-                            if (item instanceof File) formData.append(key, item);
-                        });
-                    } else {
-                        // primitive array (e.g. expertise) — always send, even if empty
-                        formData.append(key, JSON.stringify(data[key]));
-                    }
-                } else if (data[key] instanceof File) {
-                    formData.append(key, data[key]);
-                } else if (typeof data[key] === "object" && !(data[key] instanceof File)) {
-                    formData.append(key, JSON.stringify(data[key]));
-                } else {
-                    formData.append(key, data[key]);
-                }
-            }
-        });
-        return api.put(url, formData, {
+        }),
+    put: (url, data) =>
+        api.put(url, buildFormData(data), {
             headers: { "Content-Type": "multipart/form-data" },
-        });
-    },
+        }),
 };
 
-// Page Meta API endpoints
+// ─── Namespaced API helpers ────────────────────────────────────────────────────
 export const pageMetaApi = {
-    // Get all page meta entries
     getAll: () => api.get("/admin/page-meta"),
-
-    // Get a single page meta by ID
     getById: (id) => api.get(`/admin/page-meta/${id}`),
-
-    // Create a new page meta
     create: (data) => api.post("/admin/page-meta", data),
-
-    // Update a page meta
     update: (id, data) => api.put(`/admin/page-meta/${id}`, data),
-
-    // Delete a page meta
     delete: (id) => api.delete(`/admin/page-meta/${id}`),
-
-    // Toggle active status
-    toggleStatus: (id, updatedBy) => api.patch(`/admin/page-meta/${id}/toggle`, { updatedBy }),
+    toggleStatus: (id, updatedBy) =>
+        api.patch(`/admin/page-meta/${id}/toggle`, { updatedBy }),
 };
 
-// Contact API endpoints
 export const contactApi = {
-    // Get all contact inquiries
     getAll: (params = {}) => {
-        const queryString = new URLSearchParams(params).toString();
-        return api.get(`/admin/contact${queryString ? `?${queryString}` : ""}`);
+        const qs = new URLSearchParams(params).toString();
+        return api.get(`/admin/contact${qs ? `?${qs}` : ""}`);
     },
-
-    // Get a single inquiry by ID
     getById: (id) => api.get(`/admin/contact/${id}`),
-
-    // Update inquiry status
-    updateStatus: (id, status) => api.patch(`/admin/contact/${id}/status`, { status }),
+    updateStatus: (id, status) =>
+        api.patch(`/admin/contact/${id}/status`, { status }),
 };
 
 export default api;
