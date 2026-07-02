@@ -68,6 +68,14 @@ const ContentTab = ({ formData, setFormData }) => {
         answer: { en: "", bn: "" },
     });
 
+    const [policyEntries, setPolicyEntries] = useState(() =>
+        Object.entries(formData.cancellationPolicy || {}).map(([key, value], i) => ({
+            id: `${i}-${key}`,
+            key,
+            value,
+        }))
+    );
+
     const update = (field, value) =>
         setFormData((p) => ({ ...p, [field]: value }));
 
@@ -80,6 +88,31 @@ const ContentTab = ({ formData, setFormData }) => {
             },
         }));
 
+    const syncPolicyToFormData = (entries) => {
+        const obj = {};
+        entries.forEach(({ key, value }) => {
+            if (key.trim()) obj[key.trim()] = value;
+        });
+        update("cancellationPolicy", obj);
+    };
+
+    const addPolicyRow = () => {
+        const next = [...policyEntries, { id: crypto.randomUUID(), key: "", value: "" }];
+        setPolicyEntries(next);
+    };
+
+    const updatePolicyEntry = (id, field, val) => {
+        const next = policyEntries.map((e) => (e.id === id ? { ...e, [field]: val } : e));
+        setPolicyEntries(next);
+        syncPolicyToFormData(next);
+    };
+
+    const removePolicyRow = (id) => {
+        const next = policyEntries.filter((e) => e.id !== id);
+        setPolicyEntries(next);
+        syncPolicyToFormData(next);
+    };
+
     const addFaq = () => {
         if (!faqDraft.question.en || !faqDraft.answer.en) return;
         update("faqs", [...formData.faqs, faqDraft]);
@@ -90,7 +123,7 @@ const ContentTab = ({ formData, setFormData }) => {
         <div className="space-y-8">
             {/* Inclusions */}
             <LocalizedList
-                label="✅ Inclusions"
+                label="Inclusions"
                 items={formData.inclusions}
                 onAdd={(item) => update("inclusions", [...formData.inclusions, item])}
                 onRemove={(i) =>
@@ -102,7 +135,7 @@ const ContentTab = ({ formData, setFormData }) => {
 
             {/* Exclusions */}
             <LocalizedList
-                label="❌ Exclusions"
+                label="Exclusions"
                 items={formData.exclusions}
                 onAdd={(item) => update("exclusions", [...formData.exclusions, item])}
                 onRemove={(i) =>
@@ -114,7 +147,7 @@ const ContentTab = ({ formData, setFormData }) => {
 
             {/* Important Notes */}
             <div className="space-y-4">
-                <h4 className="text-sm font-semibold text-gray-700">📝 Important Notes</h4>
+                <h4 className="text-sm font-semibold text-gray-700">Important Notes</h4>
                 {[
                     { key: "clothing", label: "Clothing" },
                     { key: "health", label: "Health" },
@@ -137,47 +170,30 @@ const ContentTab = ({ formData, setFormData }) => {
             {/* Cancellation Policy */}
             <div className="space-y-3">
                 <h4 className="text-sm font-semibold text-gray-700">🔁 Cancellation Policy</h4>
-                {Object.entries(formData.cancellationPolicy || {}).map(([key, val]) => (
-                    <div key={key} className="flex items-center gap-2">
+                {policyEntries.map((entry) => (
+                    <div key={entry.id} className="flex items-center gap-2">
                         <input
                             type="text"
-                            value={key}
-                            readOnly
-                            className="w-36 px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-xs text-gray-600"
+                            value={entry.key}
+                            onChange={(e) => updatePolicyEntry(entry.id, "key", e.target.value)}
+                            placeholder="e.g. before30Days"
+                            className="w-40 px-3 py-2 border border-gray-300 rounded-lg text-xs font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
                         />
                         <input
                             type="text"
-                            value={val}
-                            onChange={(e) =>
-                                update("cancellationPolicy", {
-                                    ...formData.cancellationPolicy,
-                                    [key]: e.target.value,
-                                })
-                            }
+                            value={entry.value}
+                            onChange={(e) => updatePolicyEntry(entry.id, "value", e.target.value)}
+                            placeholder="e.g. Full refund minus 10% fee"
                             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
                         />
-                        <button
-                            type="button"
-                            onClick={() => {
-                                const cp = { ...formData.cancellationPolicy };
-                                delete cp[key];
-                                update("cancellationPolicy", cp);
-                            }}
-                            className="text-red-400 hover:text-red-600"
-                        >
-                            <TrashIcon className="w-4 h-4" />
+                        <button type="button" onClick={() => removePolicyRow(entry.id)}>
+                            <TrashIcon className="w-4 h-4 text-red-400 hover:text-red-600" />
                         </button>
                     </div>
                 ))}
                 <button
                     type="button"
-                    onClick={() => {
-                        const key = `before${Object.keys(formData.cancellationPolicy || {}).length + 1}`;
-                        update("cancellationPolicy", {
-                            ...formData.cancellationPolicy,
-                            [key]: "",
-                        });
-                    }}
+                    onClick={addPolicyRow}
                     className="text-sm text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
                 >
                     <PlusIcon className="w-4 h-4" /> Add policy row
@@ -188,7 +204,7 @@ const ContentTab = ({ formData, setFormData }) => {
 
             {/* FAQs */}
             <div className="space-y-4">
-                <h4 className="text-sm font-semibold text-gray-700">❓ FAQs</h4>
+                <h4 className="text-sm font-semibold text-gray-700">FAQs</h4>
 
                 {formData.faqs.map((faq, i) => (
                     <div

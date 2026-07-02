@@ -4,7 +4,7 @@ import LocalizedInput from "../shared/LocalizedInput";
 
 const LocationContactTab = ({ formData, setFormData }) => {
     const [attractionDraft, setAttractionDraft] = useState({
-        name: "", distance: "", duration: "", description: { en: "", bn: "" },
+        name: "", distance: "", duration: "", image: "", description: { en: "", bn: "" },
     });
 
     const update = (field, value) =>
@@ -32,19 +32,22 @@ const LocationContactTab = ({ formData, setFormData }) => {
     const addAttraction = () => {
         if (!attractionDraft.name.trim()) return;
         update("nearbyAttractions", [...formData.nearbyAttractions, attractionDraft]);
-        setAttractionDraft({ name: "", distance: "", duration: "", description: { en: "", bn: "" } });
+        setAttractionDraft({ name: "", distance: "", duration: "", image: "", description: { en: "", bn: "" } });
     };
 
     return (
         <div className="space-y-8">
             {/* Nearby Attractions */}
             <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3">📍 Nearby Attractions</h4>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">Nearby Attractions</h4>
                 {formData.nearbyAttractions.map((a, i) => (
                     <div key={i} className="flex items-start gap-3 bg-gray-50 rounded-xl p-3 mb-2">
                         <div className="flex-1">
                             <p className="text-sm font-medium text-gray-800">{a.name}</p>
                             <p className="text-xs text-gray-500">{a.distance} · {a.duration}</p>
+                            {a.image && (
+                                <img src={a.image} alt={a.name} className="mt-1 h-16 w-auto object-cover rounded-lg" />
+                            )}
                             {a.description?.en && (
                                 <p className="text-xs text-gray-500 mt-0.5">{a.description.en}</p>
                             )}
@@ -70,6 +73,13 @@ const LocationContactTab = ({ formData, setFormData }) => {
                             />
                         ))}
                     </div>
+                    <input
+                        type="url"
+                        value={attractionDraft.image}
+                        onChange={(e) => setAttractionDraft((p) => ({ ...p, image: e.target.value }))}
+                        placeholder="Image URL (optional)"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
                     <LocalizedInput
                         label="Description"
                         valueEn={attractionDraft.description.en}
@@ -92,7 +102,7 @@ const LocationContactTab = ({ formData, setFormData }) => {
 
             {/* Location Map */}
             <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-gray-700">🗺️ Location Map</h4>
+                <h4 className="text-sm font-semibold text-gray-700">Location Map</h4>
                 <div className="grid grid-cols-2 gap-2">
                     <input
                         type="number"
@@ -145,7 +155,7 @@ const LocationContactTab = ({ formData, setFormData }) => {
 
             {/* Travel Tips */}
             <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-gray-700">💡 Travel Tips</h4>
+                <h4 className="text-sm font-semibold text-gray-700">Travel Tips</h4>
                 <LocalizedInput
                     label="Best Time"
                     valueEn={formData.travelTips?.bestTime?.en || ""}
@@ -202,7 +212,7 @@ const LocationContactTab = ({ formData, setFormData }) => {
 
             {/* Point of Contact */}
             <div className="space-y-4">
-                <h4 className="text-sm font-semibold text-gray-700">📞 Point of Contact</h4>
+                <h4 className="text-sm font-semibold text-gray-700">Point of Contact</h4>
                 {[
                     { key: "tourManager", label: "Tour Manager", fields: ["name", "phone", "email", "whatsapp"] },
                     { key: "emergencyContact", label: "Emergency Contact", fields: ["name", "phone"] },

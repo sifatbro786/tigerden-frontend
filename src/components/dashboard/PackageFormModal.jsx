@@ -110,17 +110,23 @@ const PackageFormModal = ({ isOpen, onClose, onSubmit, initialData, isLoading })
         if (!isOpen) return;
         setActiveTab("basic");
 
+        const normalizeFacilities = (f) => ({
+            accommodation: Array.isArray(f?.accommodation) ? f.accommodation : [],
+            transportation: Array.isArray(f?.transportation) ? f.transportation : [],
+            meals: Array.isArray(f?.meals) ? f.meals : [],
+            guides: Array.isArray(f?.guides) ? f.guides : [],
+        });
+
         if (initialData) {
             setFormData({
                 ...DEFAULT_FORM,
                 ...initialData,
                 category: initialData.category?._id || initialData.category || "",
+                facilities: normalizeFacilities(initialData.facilities),
                 flashSaleEndTime: initialData.flashSaleEndTime
                     ? new Date(initialData.flashSaleEndTime).toISOString().slice(0, 16)
                     : "",
-                cancellationPolicy: initialData.cancellationPolicy
-                    ? Object.fromEntries(initialData.cancellationPolicy)  // Map → plain object
-                    : {},
+                cancellationPolicy: initialData.cancellationPolicy || {},
             });
             setExistingCoverImage(initialData.coverImage || null);
             setCoverImageFile(null);

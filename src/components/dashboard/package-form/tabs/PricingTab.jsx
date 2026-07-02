@@ -19,7 +19,7 @@ const PricingTab = ({ formData, setFormData }) => {
         <div className="space-y-6">
             {/* Pricing */}
             <div className="bg-gray-50 rounded-xl p-4 space-y-4">
-                <h4 className="text-sm font-semibold text-gray-700">💰 Pricing</h4>
+                <h4 className="text-sm font-semibold text-gray-700">Pricing</h4>
                 <div className="grid grid-cols-3 gap-3">
                     <div>
                         <label className="text-xs font-medium text-gray-600 mb-1 block">
@@ -77,7 +77,7 @@ const PricingTab = ({ formData, setFormData }) => {
 
             {/* Group Size */}
             <div className="bg-gray-50 rounded-xl p-4 space-y-4">
-                <h4 className="text-sm font-semibold text-gray-700">👥 Group Size</h4>
+                <h4 className="text-sm font-semibold text-gray-700">Group Size</h4>
                 <div className="grid grid-cols-3 gap-3">
                     <div>
                         <label className="text-xs font-medium text-gray-600 mb-1 block">
@@ -119,7 +119,7 @@ const PricingTab = ({ formData, setFormData }) => {
 
             {/* Badges */}
             <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-                <h4 className="text-sm font-semibold text-gray-700">🏷️ Badges</h4>
+                <h4 className="text-sm font-semibold text-gray-700">Badges</h4>
                 <div className="flex flex-wrap gap-6">
                     <label className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -128,7 +128,7 @@ const PricingTab = ({ formData, setFormData }) => {
                             onChange={(e) => update("featured", e.target.checked)}
                             className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
                         />
-                        <span className="text-sm text-gray-700">⭐ Featured</span>
+                        <span className="text-sm text-gray-700">Featured</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -137,7 +137,7 @@ const PricingTab = ({ formData, setFormData }) => {
                             onChange={(e) => update("isFlashSale", e.target.checked)}
                             className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
                         />
-                        <span className="text-sm text-gray-700">🔥 Flash Sale</span>
+                        <span className="text-sm text-gray-700">Flash Sale</span>
                     </label>
                 </div>
                 {formData.isFlashSale && (
@@ -157,7 +157,7 @@ const PricingTab = ({ formData, setFormData }) => {
 
             {/* Available Dates */}
             <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-                <h4 className="text-sm font-semibold text-gray-700">📅 Available Dates</h4>
+                <h4 className="text-sm font-semibold text-gray-700">Available Dates</h4>
                 <div className="flex gap-2">
                     <input
                         type="date"

@@ -2,7 +2,8 @@ import { useState } from "react";
 import { PlusIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import LocalizedInput from "../shared/LocalizedInput";
 
-const emptyDay = { day: "", title: { en: "", bn: "" }, activities: [] };
+const MEAL_OPTIONS = ["Breakfast", "Lunch", "Dinner"];
+const emptyDay = { day: "", title: { en: "", bn: "" }, activities: [], meals: [] };
 
 const ItineraryTab = ({ formData, setFormData }) => {
     const [draft, setDraft] = useState(emptyDay);
@@ -25,6 +26,15 @@ const ItineraryTab = ({ formData, setFormData }) => {
 
     const removeActivity = (i) =>
         setDraft((p) => ({ ...p, activities: p.activities.filter((_, idx) => idx !== i) }));
+
+    const toggleDraftMeal = (meal) => {
+        setDraft((p) => ({
+            ...p,
+            meals: p.meals.includes(meal)
+                ? p.meals.filter((m) => m !== meal)
+                : [...p.meals, meal],
+        }));
+    };
 
     const addDay = () => {
         if (!draft.day || !draft.title.en || !draft.title.bn) return;
@@ -76,6 +86,11 @@ const ItineraryTab = ({ formData, setFormData }) => {
                     </div>
                     {expanded === i && (
                         <div className="px-4 pb-4 border-t border-gray-100 pt-3">
+                            {dayObj.meals?.length > 0 && (
+                                <p className="text-xs text-gray-500 mb-2">
+                                    Meals: <span className="text-gray-700">{dayObj.meals.join(", ")}</span>
+                                </p>
+                            )}
                             <ul className="space-y-1">
                                 {dayObj.activities.map((act, j) => (
                                     <li key={j} className="text-sm text-gray-600 flex gap-2">
@@ -156,6 +171,26 @@ const ItineraryTab = ({ formData, setFormData }) => {
                         >
                             <PlusIcon className="w-4 h-4" />
                         </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label className="text-xs text-gray-600 mb-1.5 block">Meals Included</label>
+                    <div className="flex gap-2">
+                        {MEAL_OPTIONS.map((meal) => (
+                            <button
+                                key={meal}
+                                type="button"
+                                onClick={() => toggleDraftMeal(meal)}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                                    draft.meals.includes(meal)
+                                        ? "bg-emerald-500 text-white border-emerald-500"
+                                        : "bg-white text-gray-600 border-gray-300 hover:border-emerald-300"
+                                }`}
+                            >
+                                {meal}
+                            </button>
+                        ))}
                     </div>
                 </div>
 

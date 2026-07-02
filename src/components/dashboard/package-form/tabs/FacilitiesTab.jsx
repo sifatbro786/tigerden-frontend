@@ -10,17 +10,21 @@ const LocalizedItemList = ({ label, items, onAdd, onRemove }) => {
         <div>
             <label className="text-xs font-medium text-gray-600 mb-2 block">{label}</label>
             <div className="flex flex-wrap gap-1.5 mb-2">
-                {items.map((item, i) => (
-                    <span
-                        key={i}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-700 text-xs rounded-lg"
-                    >
-                        {item.en}
-                        <button type="button" onClick={() => onRemove(i)}>
-                            <TrashIcon className="w-3 h-3 text-red-400 hover:text-red-600" />
-                        </button>
-                    </span>
-                ))}
+                {items.map((item, i) => {
+                    // Handle both legacy plain strings and current {en, bn} objects
+                    const label = typeof item === "string" ? item : (item?.en || "");
+                    return (
+                        <span
+                            key={i}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-700 text-xs rounded-lg"
+                        >
+                            {label}
+                            <button type="button" onClick={() => onRemove(i)}>
+                                <TrashIcon className="w-3 h-3 text-red-400 hover:text-red-600" />
+                            </button>
+                        </span>
+                    );
+                })}
             </div>
             <div className="flex gap-2">
                 <input
@@ -147,7 +151,7 @@ const FacilitiesTab = ({ formData, setFormData }) => {
             {/* Accommodation — array of hotels */}
             <div>
                 <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-sm font-semibold text-gray-700">🏨 Accommodation</h4>
+                    <h4 className="text-sm font-semibold text-gray-700">Accommodation</h4>
                     <button
                         type="button"
                         onClick={addAccommodation}
@@ -157,15 +161,12 @@ const FacilitiesTab = ({ formData, setFormData }) => {
                     </button>
                 </div>
                 <div className="space-y-3">
-                    {(formData.facilities?.accommodation || []).map((entry, i) => (
-                        <AccommodationEntry
-                            key={i}
-                            entry={entry}
-                            index={i}
-                            onChange={updateAccommodation}
-                            onRemove={removeAccommodation}
-                        />
-                    ))}
+                    {Array.isArray(formData.facilities?.accommodation)
+                        ? formData.facilities.accommodation.map((entry, i) => (
+                            <AccommodationEntry key={i} entry={entry} index={i} onChange={updateAccommodation} onRemove={removeAccommodation} />
+                        ))
+                        : null
+                    }
                     {(formData.facilities?.accommodation || []).length === 0 && (
                         <p className="text-sm text-gray-400 text-center py-4 bg-gray-50 rounded-xl">
                             No hotels added. Click "Add Hotel" to start.
@@ -181,19 +182,19 @@ const FacilitiesTab = ({ formData, setFormData }) => {
                 {[
                     { key: "transportation", label: "🚌 Transportation" },
                     { key: "meals", label: "🍽️ Meals" },
-                    { key: "guides", label: "🧭 Guides" },
+                    { key: "guides", label: "🧭 Guides"},
                 ].map(({ key, label }) => (
                     <LocalizedItemList
                         key={key}
                         label={label}
-                        items={formData.facilities?.[key] || []}
+                        items={Array.isArray(formData.facilities?.[key]) ? formData.facilities[key] : []}
                         onAdd={(item) =>
-                            updateFacility(key, [...(formData.facilities?.[key] || []), item])
+                            updateFacility(key, [...(formData.facilities?.[key] ?? []), item])
                         }
                         onRemove={(i) =>
                             updateFacility(
                                 key,
-                                (formData.facilities?.[key] || []).filter((_, idx) => idx !== i)
+                                (formData.facilities?.[key] ?? []).filter((_, idx) => idx !== i)
                             )
                         }
                     />
